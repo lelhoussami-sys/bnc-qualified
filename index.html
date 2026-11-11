@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bank Accounts | National Bank of Canada</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red:      #e41c23;
+      --red-dark: #8b1618;
+      --navy:     #00314d;
+      --navy-2:   #003d60;
+      --grey-bg:  #f4f4f4;
+      --grey-mid: #d2d2d2;
+      --text:     #303030;
+      --white:    #ffffff;
+    }
+
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: var(--text); font-size: 16px; line-height: 1.6; }
+    a { color: inherit; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── TOP UTILITY BAR (dark charcoal) ── */
+    .util-bar {
+      background: #3a3a3a;
+      position: sticky; top: 0; z-index: 300;
+    }
+    .util-inner {
+      max-width: 1280px; margin: 0 auto; padding: 0 32px;
+      display: flex; align-items: stretch; justify-content: space-between; height: 44px;
+    }
+    .util-left { display: flex; align-items: stretch; }
+    .util-left a {
+      font-size: 13px; color: #ccc; padding: 0 16px;
+      display: flex; align-items: center; white-space: nowrap;
+      border-bottom: 3px solid transparent;
+    }
+    .util-left a:hover { color: white; text-decoration: none; }
+    .util-left a.active { color: white; font-weight: 600; background: rgba(255,255,255,.1); border-bottom-color: white; }
+    .util-right { display: flex; align-items: center; gap: 4px; }
+    .util-right a {
+      font-size: 13px; color: #ccc; padding: 0 10px;
+      display: flex; align-items: center; gap: 5px; height: 44px; white-space: nowrap;
+    }
+    .util-right a:hover { color: white; text-decoration: none; }
+    .util-btn-outline {
+      border: 1px solid #aaa; border-radius: 20px; padding: 0 16px !important;
+      color: white !important; gap: 6px !important; margin: 0 4px;
+    }
+    .util-btn-outline:hover { border-color: white !important; background: rgba(255,255,255,.1); }
+    .util-btn-red {
+      background: var(--red); border-radius: 20px; padding: 0 16px !important;
+      color: white !important; gap: 6px !important; font-weight: 600 !important;
+    }
+    .util-btn-red:hover { background: var(--red-dark) !important; }
+    .util-sep { color: #666; font-size: 11px; padding: 0 2px !important; }
+
+    /* ── HEADER ── */
+    header {
+      background: white;
+      border-bottom: 1px solid #e0e0e0;
+      position: sticky; top: 44px; z-index: 200;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+    .header-inner {
+      max-width: 1280px; margin: 0 auto; padding: 0 32px;
+      display: flex; align-items: center; height: 68px; gap: 0;
+    }
+
+    /* NBC LOGO — uses the actual SVG from nbc.ca */
+    .logo { display: flex; align-items: center; gap: 0; flex-shrink: 0; margin-right: 48px; }
+    .logo img { height: 42px; width: auto; display: block; }
+
+    /* SECONDARY NAV — single row, logo left, nav right */
+    .main-nav { display: flex; gap: 0; align-items: center; }
+    .main-nav a {
+      font-size: 14px; font-weight: 400; color: #303030;
+      padding: 0 14px; height: 68px; display: flex; align-items: center;
+      white-space: nowrap; border-bottom: 3px solid transparent;
+      position: relative; top: 0;
+    }
+    .main-nav a:hover { color: var(--red); text-decoration: none; }
+    .main-nav a.active { font-weight: 700; color: #303030; border-bottom-color: var(--red); }
+
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 20px; border-radius: 4px; font-size: 13px; font-weight: 700; cursor: pointer; border: 2px solid transparent; transition: .15s; white-space: nowrap; }
+    .btn-red { background: var(--red); color: white; }
+    .btn-red:hover { background: var(--red-dark); text-decoration: none; }
+    .btn-outline-navy { border-color: var(--navy); color: var(--navy); }
+    .btn-outline-navy:hover { background: var(--navy); color: white; text-decoration: none; }
+    .btn-outline-red { border-color: var(--red); color: var(--red); }
+    .btn-outline-red:hover { background: var(--red); color: white; text-decoration: none; }
+
+    /* ── HERO BANNER ── */
+    .hero {
+      position: relative;
+      background: var(--red);
+      height: 390px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+    /* Photo sits on the right, clipped diagonally */
+    .hero-photo {
+      position: absolute;
+      right: 0; top: 0;
+      width: 70%;
+      height: 100%;
+      clip-path: polygon(8% 0, 100% 0, 100% 100%, 0 100%);
+    }
+    .hero-photo img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: right center;
+      display: block;
+    }
+    /* Red wave / scallop at bottom-right */
+    .hero-wave {
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 55%; height: 110px;
+      pointer-events: none; z-index: 3;
+    }
+    .hero-wave svg { width: 100%; height: 100%; }
+
+    /* Text panel — absolutely fills the left red zone, text vertically centered */
+    .hero-content {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 44%;
+      padding: 0 60px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .hero h1 { font-size: 42px; font-weight: 800; color: white; line-height: 1.05; margin-bottom: 16px; }
+    .hero-sub { font-size: 19px; color: rgba(255,255,255,.93); max-width: 360px; line-height: 1.4; margin: 0; }
+
+    /* ── PAGE LAYOUT ── */
+    .page-wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── ON THIS PAGE ── */
+    .on-this-page { padding: 18px 0; border-bottom: 1px solid var(--grey-mid); }
+    .on-this-page .page-wrap { display: flex; flex-direction: column; gap: 6px; }
+    .otp-label { font-size: 13px; color: #555; }
+    .otp-links { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .otp-links a { font-size: 14px; color: #1e74c2; font-weight: 500; }
+    .otp-links a:hover { text-decoration: underline; }
+    .otp-sep { color: #aaa; font-size: 13px; }
+
+    /* ── SECTIONS ── */
+    section { padding: 56px 0; }
+
+    h2 { font-size: 30px; font-weight: 800; color: var(--navy); margin-bottom: 14px; }
+    h3 { font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
+    p { margin-bottom: 14px; color: #444; }
+
+    /* ── ACCOUNT CARDS ── */
+    .account-intro { max-width: 720px; margin-bottom: 40px; }
+    .account-intro p { font-size: 17px; }
+    .account-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 28px; }
+
+    .account-card {
+      border: 1px solid var(--grey-mid); border-radius: 8px; padding: 36px;
+      transition: box-shadow .2s, border-color .2s;
+    }
+    .account-card:hover { box-shadow: 0 6px 22px rgba(0,49,77,.13); border-color: var(--navy); }
+
+    .card-picto {
+      width: 72px; height: 72px; margin-bottom: 20px;
+      background: #fde8ea; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .card-picto svg { width: 36px; height: 36px; fill: var(--red); }
+
+    .account-card h3 { font-size: 24px; margin-bottom: 10px; }
+    .account-card p { font-size: 15px; line-height: 1.7; color: #555; }
+    .link-arrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-weight: 700; font-size: 14px; color: var(--red);
+      margin-top: 14px; border-bottom: 1px solid transparent;
+    }
+    .link-arrow:hover { border-bottom-color: var(--red); text-decoration: none; }
+    .link-arrow svg { width: 14px; height: 14px; fill: var(--red); }
+
+    /* ── ADVICE ── */
+    .advice-wrap { background: var(--grey-bg); }
+    .advice-inner { display: grid; grid-template-columns: 1fr 2fr; gap: 48px; align-items: start; }
+    .advice-img img { width: 100%; border-radius: 8px; display: block; }
+    .advice-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .adv-card {
+      background: white; border-radius: 8px; padding: 24px 20px;
+      border: 1px solid var(--grey-mid); display: flex; flex-direction: column; gap: 10px;
+      transition: box-shadow .2s;
+    }
+    .adv-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.1); text-decoration: none; }
+    .adv-icon {
+      width: 46px; height: 46px; background: #fde8ea; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .adv-icon svg { width: 22px; height: 22px; fill: var(--red); }
+    .adv-card h4 { font-size: 15px; font-weight: 700; color: var(--navy); margin: 0; }
+    .adv-card p { font-size: 13px; color: #666; margin: 0; }
+
+    /* ── FAQ ── */
+    .faq-intro { max-width: 700px; margin-bottom: 32px; }
+    .faq-list { list-style: none; max-width: 900px; }
+    .faq-list li { border-bottom: 1px solid var(--grey-mid); }
+    .faq-list li:first-child { border-top: 1px solid var(--grey-mid); }
+    .faq-list a {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 18px 4px; font-size: 15px; color: var(--navy); font-weight: 500;
+    }
+    .faq-list a:hover { color: var(--red); text-decoration: none; }
+    .faq-list a svg { width: 18px; height: 18px; fill: var(--red); flex-shrink: 0; margin-left: 14px; }
+
+    /* ── CONTACT ── */
+    .contact-wrap { background: var(--grey-bg); }
+    .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-top: 32px; }
+    .contact-card { background: white; border-radius: 8px; padding: 36px 28px; text-align: center; border: 1px solid var(--grey-mid); }
+    .contact-icon { width: 60px; height: 60px; background: #fde8ea; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; }
+    .contact-icon svg { width: 28px; height: 28px; fill: var(--red); }
+    .contact-card h3 { font-size: 18px; margin-bottom: 8px; }
+    .contact-card p { font-size: 14px; color: #666; }
+    .contact-card .btn { margin-top: 18px; justify-content: center; }
+
+    /* ── PROMO ── */
+    .promo-wrap { background: #fff8f8; border-top: 3px solid var(--red); }
+    .offer-ended {
+      display: inline-block; background: var(--red); color: white;
+      font-size: 11px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; padding: 4px 14px; border-radius: 20px;
+      margin-bottom: 18px;
+    }
+    .promo-wrap h2 { margin-bottom: 6px; }
+    .promo-wrap > .page-wrap > p { font-size: 15px; color: #555; max-width: 700px; }
+    .cashback-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 32px; }
+    .cb-card {
+      background: white; border-radius: 8px; padding: 28px 24px;
+      border-left: 5px solid var(--red); box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    }
+    .cb-amount { font-size: 36px; font-weight: 900; color: var(--red); line-height: 1; margin-bottom: 10px; }
+    .cb-card h4 { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 12px; }
+    .cb-card ul { padding-left: 18px; }
+    .cb-card ul li { font-size: 13px; color: #555; margin-bottom: 6px; }
+
+    .total-bar {
+      background: var(--navy); color: white; border-radius: 8px;
+      padding: 28px 36px; display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px; margin-top: 28px;
+    }
+    .total-bar h3 { color: white; font-size: 20px; margin: 0; }
+    .total-bar p { color: #9bbcd1; font-size: 13px; margin: 4px 0 0; }
+    .total-number { font-size: 44px; font-weight: 900; color: #ff9fa4; }
+
+    /* ── LEGAL ── */
+    .legal { padding: 32px 0; background: var(--grey-bg); border-top: 1px solid var(--grey-mid); }
+    .legal p { font-size: 12px; color: #888; line-height: 1.6; margin-bottom: 6px; }
+
+    /* ── CDIC BAR ── */
+    .cdic { background: var(--navy); padding: 14px 0; }
+    .cdic .inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #9bbcd1; }
+    .cdic a { color: #6ab1d4; }
+    .cdic a:hover { color: white; }
+
+    /* ── FOOTER ── */
+    footer { background: #0a1929; color: #7a99b0; padding: 56px 0 0; }
+    .footer-grid { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 36px; }
+    .footer-col h5 { color: white; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 16px; }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 10px; }
+    .footer-col ul li a { font-size: 13px; color: #5a7a90; }
+    .footer-col ul li a:hover { color: white; }
+
+    .footer-social { max-width: 1200px; margin: 32px auto 0; padding: 0 24px; display: flex; gap: 12px; }
+    .soc {
+      width: 38px; height: 38px; border: 1px solid #1e3345;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: #5a7a90;
+    }
+    .soc:hover { background: var(--red); border-color: var(--red); color: white; text-decoration: none; }
+
+    .footer-bottom { border-top: 1px solid #1a2d3e; margin-top: 28px; padding: 20px 24px; }
+    .fb-inner { max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+    .footer-bottom p { font-size: 12px; color: #3a5468; }
+    .fb-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .fb-links a { font-size: 12px; color: #3a5468; }
+    .fb-links a:hover { color: #9bbcd1; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .advice-inner { grid-template-columns: 1fr; }
+      .advice-img { display: none; }
+      .advice-cards { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .header-inner { flex-wrap: wrap; height: auto; padding: 12px 16px; }
+      .main-nav { display: none; }
+      .hero h1 { font-size: 26px; }
+      h2 { font-size: 22px; }
+      .total-bar { flex-direction: column; text-align: center; }
+    }
+  </style>
+<!-- Qualified -->
+<script>
+(function(w,q){w['QualifiedObject']=q;w[q]=w[q]||function(){
+(w[q].q=w[q].q||[]).push(arguments)};})(window,'qualified')
+
+</script>
+<script async src="https://js.qualified.com/qualified.js?token=5hx4dHVSZDbqCAN4"></script>
+<!-- End Qualified -->
+</head>
+<body>
+
+<!-- TOP UTILITY BAR -->
+<div class="util-bar">
+  <div class="util-inner">
+    <div class="util-left">
+      <a href="#" class="active">Personal</a>
+      <a href="#">Business</a>
+      <a href="#">Wealth Management</a>
+      <a href="#">About Us</a>
+    </div>
+    <div class="util-right">
+      <a href="#">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Search
+      </a>
+      <span class="util-sep">|</span>
+      <a href="#">? Help</a>
+      <span class="util-sep">|</span>
+      <a href="#">&#127760; FR</a>
+      <a href="#" class="util-btn-outline">Become a client &#8964;</a>
+      <a href="#" class="util-btn-red">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        Sign in &#8964;
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <!-- Real NBC logo SVG from nbc.ca -->
+    <a href="#" class="logo" aria-label="National Bank of Canada home">
+      <img
+        src="https://www.nbc.ca/content/dam/bnc/commun/logo/logo-nbc-155x50.svg"
+        alt="National Bank of Canada"
+        onerror="this.onerror=null; this.parentElement.innerHTML='<svg width=\'155\' height=\'50\' viewBox=\'0 0 155 50\' xmlns=\'http://www.w3.org/2000/svg\'><g><path d=\'M0 6 L0 44 L16 50 L16 12Z\' fill=\'%23e41c23\'/><path d=\'M18 0 L18 38 L34 44 L34 6Z\' fill=\'%23e41c23\'/></g><text x=\'42\' y=\'20\' font-family=\'Helvetica Neue,Arial,sans-serif\' font-weight=\'800\' font-size=\'15\' fill=\'%23303030\'>NATIONAL</text><text x=\'42\' y=\'38\' font-family=\'Helvetica Neue,Arial,sans-serif\' font-weight=\'800\' font-size=\'15\' fill=\'%23303030\'>BANK</text></svg>';"
+      />
+    </a>
+
+    <nav class="main-nav" aria-label="Personal banking">
+      <a href="#" class="active">Bank accounts</a>
+      <a href="#">Credit cards</a>
+      <a href="#">Borrowing</a>
+      <a href="#">Mortgages</a>
+      <a href="#">Savings and investments</a>
+      <a href="#">Insurance</a>
+      <a href="#">Advice</a>
+      <a href="#">Offers</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO BANNER -->
+<div class="hero" role="banner">
+  <!-- Right photo, clipped diagonally -->
+  <div class="hero-photo">
+    <img
+      src="https://www.nbc.ca/content/dam/bnc/particuliers/ban/compte/ban-compte-bancaires-l.jpg"
+      alt="Woman smiling holding a phone"
+    />
+  </div>
+  <!-- Red wave at bottom-right -->
+  <div class="hero-wave">
+    <svg viewBox="0 0 500 100" preserveAspectRatio="none">
+      <path d="M0 100 Q150 20 500 60 L500 100 Z" fill="#e41c23"/>
+    </svg>
+  </div>
+  <!-- Text on red left -->
+  <div class="hero-content">
+    <h1>Bank accounts</h1>
+    <p class="hero-sub">Find the perfect bank account for you, no matter your lifestyle</p>
+  </div>
+</div>
+
+
+<!-- ON THIS PAGE -->
+<div class="on-this-page">
+  <div class="page-wrap">
+    <span class="otp-label">On this page</span>
+    <div class="otp-links">
+      <a href="#accounts">Chequing vs. savings account</a>
+      <span class="otp-sep">|</span>
+      <a href="#faq">FAQ</a>
+      <span class="otp-sep">|</span>
+      <a href="#contact">Contact us</a>
+    </div>
+  </div>
+</div>
+
+<!-- ACCOUNT TYPES -->
+<section id="accounts">
+  <div class="page-wrap">
+    <div class="account-intro">
+      <h2>What are chequing and savings accounts?</h2>
+      <p>Choosing the right account depends on your needs, goals, and money management style.</p>
+    </div>
+    <div class="account-grid">
+
+      <div class="account-card">
+        <div class="card-picto" aria-hidden="true">
+          <!-- Chequing / debit card icon -->
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="10" width="40" height="28" rx="4" ry="4" stroke="#e41c23" stroke-width="2.5" fill="none"/>
+            <line x1="4" y1="20" x2="44" y2="20" stroke="#e41c23" stroke-width="2.5"/>
+            <rect x="10" y="26" width="12" height="5" rx="1" fill="#e41c23"/>
+          </svg>
+        </div>
+        <h3>Chequing account</h3>
+        <p>Best for everyday needs. Receive your salary, pay bills, make in-store purchases with your debit card, and transfer money between accounts with ease.</p>
+        <a href="chequing.html#profile" class="link-arrow">
+          Browse our chequing accounts
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" stroke="#e41c23" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>
+        </a>
+      </div>
+
+      <div class="account-card">
+        <div class="card-picto" aria-hidden="true">
+          <!-- Piggy bank icon -->
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="22" cy="26" rx="15" ry="12" stroke="#e41c23" stroke-width="2.5" fill="none"/>
+            <path d="M37 26 Q44 22 42 30 Q40 35 37 32" stroke="#e41c23" stroke-width="2.5" fill="none"/>
+            <circle cx="17" cy="24" r="1.5" fill="#e41c23"/>
+            <path d="M18 15 Q22 8 28 14" stroke="#e41c23" stroke-width="2.5" fill="none"/>
+            <line x1="14" y1="38" x2="14" y2="44" stroke="#e41c23" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="20" y1="38" x2="20" y2="44" stroke="#e41c23" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="26" y1="38" x2="26" y2="44" stroke="#e41c23" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>Savings account</h3>
+        <p>Designed for saving toward a major goal — like a holiday or a new car — or to build a financial cushion for life's unexpected expenses.</p>
+        <a href="/personal/savings-investments/accounts/high-interest.html" class="link-arrow">
+          Browse our savings account
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" stroke="#e41c23" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FINANCIAL ADVICE -->
+<section class="advice-wrap">
+  <div class="page-wrap">
+    <div class="advice-inner">
+
+      <div class="advice-img">
+        <img
+          src="https://www.nbc.ca/personal/accounts/_jcr_content/root/landmarks/responsivegrid/landmarks_copy/responsivegrid_76500/responsivegrid_2045513307/responsivegrid_532243888/image.coreimg.png/1701880431540/img-conseil-hub-comptes-bancaires.png"
+          alt="Financial advice"
+          loading="lazy"
+        />
+      </div>
+
+      <div>
+        <h2>Our financial advice</h2>
+        <p style="margin-bottom:28px;color:#555">Select a topic of interest to discover related advice.</p>
+        <div class="advice-cards">
+          <a href="/personal/advice/budget.html" class="adv-card">
+            <div class="adv-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#e41c23" stroke-width="2" stroke-linecap="round">
+                <path d="M12 2C8.5 2 6 5 6 8c0 4 6 10 6 10s6-6 6-10c0-3-2.5-6-6-6zm0 7a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/>
+              </svg>
+            </div>
+            <h4>Make your budget</h4>
+            <p>Tips for budgeting and optimizing your money management.</p>
+          </a>
+          <a href="/personal/advice/security.html" class="adv-card">
+            <div class="adv-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#e41c23" stroke-width="2" stroke-linecap="round">
+                <path d="M12 2L4 5v6c0 5 3.5 9.5 8 11 4.5-1.5 8-6 8-11V5l-8-3z"/>
+              </svg>
+            </div>
+            <h4>Avoid fraud</h4>
+            <p>Information on scam types and protection strategies.</p>
+          </a>
+          <a href="/personal/advice/banking.html" class="adv-card">
+            <div class="adv-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#e41c23" stroke-width="2" stroke-linecap="round">
+                <rect x="2" y="5" width="20" height="14" rx="2"/>
+                <line x1="2" y1="10" x2="22" y2="10"/>
+                <line x1="6" y1="15" x2="10" y2="15"/>
+              </svg>
+            </div>
+            <h4>Bank accounts and transactions</h4>
+            <p>Tips for making the most of your accounts day-to-day.</p>
+          </a>
+          <a href="/personal/advice.html" class="adv-card">
+            <div class="adv-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#e41c23" stroke-width="2" stroke-linecap="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <circle cx="12" cy="16" r=".8" fill="#e41c23"/>
+              </svg>
+            </div>
+            <h4>Browse all our tips</h4>
+            <p>Advice on salary, debts, and investments.</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="page-wrap">
+    <h2>Looking for more information about our bank accounts?</h2>
+    <div class="faq-intro">
+      <p>Find answers about opening an account for yourself or your children, plus day-to-day account management tips.</p>
+    </div>
+    <ul class="faq-list">
+      <li><a href="#">How do I open a business account?<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" stroke="#e41c23" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></a></li>
+      <li><a href="#">How do I open an account as a newcomer to Canada?<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" stroke="#e41c23" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></a></li>
+      <li><a href="#">How do I open an account for my child?<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" stroke="#e41c23" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></a></li>
+      <li><a href="#">Is the money in my account protected?<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" stroke="#e41c23" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></a></li>
+      <li><a href="#">Is the online identity confirmation process secure?<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" stroke="#e41c23" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></a></li>
+      <li><a href="#">How is my personal information used?<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" stroke="#e41c23" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></a></li>
+      <li><a href="#">What are the terms and conditions of my account?<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" stroke="#e41c23" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></a></li>
+    </ul>
+  </div>
+</section>
+
+<!-- CONTACT / WE'RE HERE FOR YOU -->
+<section id="contact" class="contact-wrap">
+  <div class="page-wrap">
+    <h2>We're here for you</h2>
+    <div class="contact-grid">
+      <div class="contact-card">
+        <div class="contact-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#e41c23" stroke-width="2" stroke-linecap="round">
+            <path d="M17 21v-2a4 4 0 00-8 0v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <h3>Advisory meeting</h3>
+        <p>Discuss your needs with our expert advisory team from the comfort of your home.</p>
+        <a href="#" class="btn btn-red">Make an appointment</a>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#e41c23" stroke-width="2" stroke-linecap="round">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+        </div>
+        <h3>Facebook Messenger</h3>
+        <p>Get real-time help via chat whenever you need it.</p>
+        <a href="#" class="btn btn-outline-red">Chat with us live</a>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#e41c23" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <circle cx="12" cy="16" r=".8" fill="#e41c23" stroke="none"/>
+          </svg>
+        </div>
+        <h3>Help Centre</h3>
+        <p>Browse our comprehensive Help Centre to find answers to your questions.</p>
+        <a href="#" class="btn btn-outline-red">Find an answer</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROMO -->
+<section class="promo-wrap">
+  <div class="page-wrap">
+    <span class="offer-ended">Offer ended</span>
+    <h2>Little details that matter</h2>
+    <p>Promotion period: <strong>May 7, 2026 to November 3, 2026.</strong> Earn up to $600 cashback after opening a chequing account and adding certain products or completing certain transactions.</p>
+
+    <div class="cashback-grid">
+      <div class="cb-card">
+        <div class="cb-amount">$300</div>
+        <h4>Open a new chequing account</h4>
+        <ul>
+          <li>Open your first chequing account with The Connected® or The Total® package</li>
+          <li>Sign up for online banking within 120 days</li>
+          <li>Complete 20 eligible transactions (debit purchases, bill payments)</li>
+          <li>Receive 3 eligible automatic deposits of ≥$100</li>
+        </ul>
+      </div>
+      <div class="cb-card">
+        <div class="cb-amount">$100</div>
+        <h4>New credit card</h4>
+        <ul>
+          <li>Apply and receive approval for an eligible NBC Mastercard® within 120 days</li>
+          <li>Complete at least 20 purchases or cash advances</li>
+          <li>Eligible: Platinum, World, World Elite, mycredit™, Allure®, MC1®, Echo® Cashback</li>
+        </ul>
+      </div>
+      <div class="cb-card">
+        <div class="cb-amount">$100</div>
+        <h4>Mortgage payment</h4>
+        <ul>
+          <li>Set up pre-authorized, recurring payments from your new chequing account for a National Bank mortgage within 120 days</li>
+        </ul>
+      </div>
+      <div class="cb-card">
+        <div class="cb-amount">$100</div>
+        <h4>New savings account</h4>
+        <ul>
+          <li>Open a High Interest Savings Account within 15 days</li>
+          <li>Deposit at least $5,000</li>
+          <li>Maintain a minimum $5,000 balance continuously through day 120</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="total-bar">
+      <div>
+        <h3>Total potential cashback</h3>
+        <p>Deposited into your account by end of the sixth month following opening date</p>
+      </div>
+      <div class="total-number">Up to $600</div>
+    </div>
+  </div>
+</section>
+
+<!-- LEGAL -->
+<div class="legal">
+  <div class="page-wrap">
+    <p>® NATIONAL BANK, CWB, CRESCENDO, THE STRATEGIST, THE CONNECTED, THE TOTAL, SUPERIOR FLEX LINE, ALL-IN-ONE, MY CREDIT, ALLURE, ECHO are registered trademarks of National Bank of Canada.</p>
+    <p>® Interac is a registered trademark of Interac Corp., used under licence.</p>
+    <p>® Mastercard, World Mastercard, MC1, Platinum, World Elite are registered trademarks of Mastercard International Incorporated.</p>
+  </div>
+</div>
+
+<!-- CDIC BAR -->
+<div class="cdic">
+  <div class="inner">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9bbcd1" stroke-width="2" stroke-linecap="round">
+      <path d="M12 2L4 5v6c0 5 3.5 9.5 8 11 4.5-1.5 8-6 8-11V5l-8-3z"/>
+    </svg>
+    Member of Canada Deposit Insurance Corporation (CDIC) &mdash;
+    <a href="https://www.cdic.ca/depositors/whats-covered/#categories">Learn about deposit coverage</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h5>Useful links</h5>
+      <ul>
+        <li><a href="#">Change of address</a></li>
+        <li><a href="#">Complaint settlement</a></li>
+        <li><a href="#">Exchange rates</a></li>
+        <li><a href="#">Interest rates</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Help and contact</h5>
+      <ul>
+        <li><a href="#">Contact us</a></li>
+        <li><a href="#">Find a branch</a></li>
+        <li><a href="#">Make an appointment</a></li>
+        <li><a href="#">Help Centre</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>ABCs of security</h5>
+      <ul>
+        <li><a href="#">Privacy and security</a></li>
+        <li><a href="#">Fraud prevention</a></li>
+        <li><a href="#">Privacy policy</a></li>
+        <li><a href="#">Digital data policy</a></li>
+        <li><a href="#">Identity theft</a></li>
+        <li><a href="#">Report wrongdoing</a></li>
+        <li><a href="#">Lost or stolen card</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Subsidiaries</h5>
+      <ul>
+        <li><a href="#">National Bank Trust</a></li>
+        <li><a href="#">National Bank Investments</a></li>
+        <li><a href="#">Natbank</a></li>
+        <li><a href="#">National Bank Financial</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Divisions of NBF</h5>
+      <ul>
+        <li><a href="#">Direct Brokerage</a></li>
+        <li><a href="#">Private Banking 1859</a></li>
+        <li><a href="#">National Bank Independent Network</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>News</h5>
+      <ul>
+        <li><a href="#">Press releases</a></li>
+        <li><a href="#">Financial news</a></li>
+        <li><a href="#">Important notices — Personal</a></li>
+        <li><a href="#">Important notices — Business</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Careers</h5>
+      <ul>
+        <li><a href="#">Life at National Bank</a></li>
+        <li><a href="#">All jobs</a></li>
+        <li><a href="#">Students and Internships</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-social">
+    <a href="#" class="soc" title="Facebook">f</a>
+    <a href="#" class="soc" title="X / Twitter">𝕏</a>
+    <a href="#" class="soc" title="YouTube">▶</a>
+    <a href="#" class="soc" title="LinkedIn">in</a>
+    <a href="#" class="soc" title="Instagram">◎</a>
+    <a href="#" class="soc" title="TikTok">♪</a>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="fb-inner">
+      <p>© NATIONAL BANK OF CANADA. All rights reserved 2026.</p>
+      <div class="fb-links">
+        <a href="#">Terms of use</a>
+        <a href="#">Accessibility plan</a>
+        <a href="#">Accessibility Progress Report</a>
+        <a href="#">Accessibility feedback process</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
